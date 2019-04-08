@@ -241,7 +241,6 @@ namespace DequeAPI
             return -1;
         }
 
-        //TODO:
         public void Insert(int index, T item)
         {
             if (IsReadOnly)
