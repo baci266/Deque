@@ -182,14 +182,36 @@ namespace DequeAPI
 
         public bool Contains(T item)
         {
-            throw new NotImplementedException();
+            if (IndexOf(item) != -1)
+                return true;
+            else
+                return false;
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            throw new NotImplementedException();
+            if (array == null)
+                throw new ArgumentNullException();
+            if (arrayIndex < 0)
+                throw new ArgumentOutOfRangeException();
+            if (array.Length - arrayIndex < Count)
+                throw new ArgumentException();
+
+            int tmpInner = BackInnerIndex;
+            int tmpOuter = BackOuterIndex;
+            for (int i = 0; i < Count; i++)
+            {
+                array[arrayIndex + i] = Holder.Data[tmpOuter, tmpInner];
+                tmpInner++;
+                if (tmpInner == 64)
+                {
+                    tmpInner = 0;
+                    tmpOuter++;
+                }
+            }
         }
 
+        //TODO:
         public IEnumerator<T> GetEnumerator()
         {
             throw new NotImplementedException();
@@ -197,24 +219,57 @@ namespace DequeAPI
 
         public int IndexOf(T item)
         {
-            throw new NotImplementedException();
+            int tmpInner = BackInnerIndex;
+            int tmpOuter = BackOuterIndex;
+            for (int i = 0; i < Count; i++)
+            {
+                if (item.Equals(Holder.Data[tmpOuter, tmpInner]))
+                    return i;
+                tmpInner++;
+                if (tmpInner == 64)
+                {
+                    tmpInner = 0;
+                    tmpOuter++;
+                }
+            }
+            return -1;
         }
 
+        //TODO:
         public void Insert(int index, T item)
         {
+            if (IsReadOnly)
+                throw new InvalidOperationException();
+
             throw new NotImplementedException();
         }
 
         public bool Remove(T item)
         {
-            throw new NotImplementedException();
+            if (IsReadOnly)
+                throw new InvalidOperationException();
+
+            int index = IndexOf(item);
+
+            if (index == -1)
+                return false;
+            else
+            {
+                RemoveAt(index);
+                return true;
+            }
         }
 
+        //TODO:
         public void RemoveAt(int index)
         {
+            if (IsReadOnly)
+                throw new InvalidOperationException();
+
             throw new NotImplementedException();
         }
 
+        //TODO:
         IEnumerator IEnumerable.GetEnumerator()
         {
             throw new NotImplementedException();
