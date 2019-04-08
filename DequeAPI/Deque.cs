@@ -250,15 +250,28 @@ namespace DequeAPI
             if (index < 0 || index >= Count)
                 throw new ArgumentOutOfRangeException();
 
-
-
-            throw new NotImplementedException();
+            if (index < Count / 2)
+            {
+                PushBack(this[0]);
+                for (int i = 0; i < index; i++)
+                {
+                    this[i] = this[i + 1];
+                }
+                this[index] = item;
+            }
+            else
+            {
+                PushFront(this[0]);
+                for (int i = Count - 1; i > index; i--)
+                {
+                    this[i] = this[i - 1];
+                }
+                this[index] = item;
+            }
         }
 
         private void ShiftData(int EmptyIndex)
-        {
-            int tmpInner = EmptyIndex;
-            int tmpOuter = (EmptyIndex + BackDifference ) / DefaultChunkCapacity;
+        {            
             if (EmptyIndex < Count / 2)
             {
                 for (int i = EmptyIndex; i >= 1; i--)
@@ -267,6 +280,7 @@ namespace DequeAPI
                 }
                 Count--;
                 BackInnerIndex++;
+                BackDifference++;
                 if (BackInnerIndex == DefaultChunkCapacity)
                 {
                     BackInnerIndex = 0;
@@ -275,9 +289,9 @@ namespace DequeAPI
             }
             else
             {
-                for (int i = EmptyIndex; i < Count; i++)
+                for (int i = EmptyIndex+1; i < Count; i++)
                 {
-                    this[i] = this[i + 1];
+                    this[i-1] = this[i];
                 }
                 Count--;
                 FrontInnerIndex--;
@@ -305,7 +319,6 @@ namespace DequeAPI
             }
         }
 
-        //TODO:
         public void RemoveAt(int index)
         {
             if (IsReadOnly)
