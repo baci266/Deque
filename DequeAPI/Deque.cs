@@ -4,15 +4,17 @@ using System.Collections.Generic;
 
 namespace DequeAPI
 {
-    public class Deque<T> : IList<T>
+    public sealed class Deque<T> : IList<T>
     {
         private const int DefaultChunkCapacity = 64;
         private const int DefaultChunkCount = 2;
+
         private int FrontOuterIndex;
         private int FrontInnerIndex;
         private int BackOuterIndex;
         private int BackInnerIndex;
         private int BackDifference;
+        private bool Readonly = false;
         private DataHolder Holder;
 
         private struct DataHolder
@@ -115,8 +117,6 @@ namespace DequeAPI
             BackOuterIndex = length / 2 + BackOuterIndex;
             int frontOut =  (front) ? FrontOuterIndex : FrontOuterIndex + length/2;
             int frontIn = FrontInnerIndex;
-            //FrontInnerIndex = (BackInnerIndex + 1) % 64;
-            //FrontOuterIndex = (FrontInnerIndex == 0) ? BackOuterIndex + 1 : BackOuterIndex;
             FrontOuterIndex = length / 2;
             FrontInnerIndex = (BackInnerIndex + 1) % DefaultChunkCapacity;
             DataHolder newData = Holder;
@@ -138,7 +138,7 @@ namespace DequeAPI
             {
                 index = CountActualIndex(index);
 
-                return Holder.Data[(index / DefaultChunkCapacity), index % DefaultChunkCapacity];
+                return Holder.Data[index / DefaultChunkCapacity, index % DefaultChunkCapacity];
             }
             set
             {
@@ -158,16 +158,26 @@ namespace DequeAPI
 
         public int Count { get; private set; } = 0;
 
-        public bool IsReadOnly => throw new NotImplementedException();
+        public bool IsReadOnly
+        {
+            get => IsReadOnly;
+            private set => IsReadOnly = value;
+        }
 
         public void Add(T item)
         {
+            if (IsReadOnly)
+                throw new InvalidOperationException();
+
             PushBack(item);
         }
 
         public void Clear()
         {
-            throw new NotImplementedException();
+            FrontInnerIndex = 0;
+            BackInnerIndex = DefaultChunkCapacity - 1;
+            FrontOuterIndex = Holder.Data.GetLength(0);
+            BackOuterIndex = Holder.Data.GetLength(0) - 1;
         }
 
         public bool Contains(T item)
