@@ -14,7 +14,7 @@ namespace DequeAPI
         private int BackOuterIndex;
         private int BackInnerIndex;
         private int BackDifference;
-        private bool Readonly = false;
+
         private DataHolder Holder;
 
         private struct DataHolder
@@ -33,7 +33,7 @@ namespace DequeAPI
             {
                 Data = new T[DefaultChunkCount, DefaultChunkCapacity]
             };
-            BackDifference = 64;
+            BackDifference = DefaultChunkCapacity;
             FrontInnerIndex = 0;
             BackInnerIndex = DefaultChunkCapacity - 1;
             FrontOuterIndex = 1;
@@ -158,11 +158,7 @@ namespace DequeAPI
 
         public int Count { get; private set; } = 0;
 
-        public bool IsReadOnly
-        {
-            get => IsReadOnly;
-            private set => IsReadOnly = value;
-        }
+        public bool IsReadOnly { get; private set; } = false;
 
         public void Add(T item)
         {
@@ -197,13 +193,18 @@ namespace DequeAPI
             if (array.Length - arrayIndex < Count)
                 throw new ArgumentException();
 
-            int tmpInner = BackInnerIndex;
+            int tmpInner = BackInnerIndex + 1;
             int tmpOuter = BackOuterIndex;
+            if ( tmpInner == DefaultChunkCapacity)
+            {
+                tmpInner = 0;
+                tmpOuter++;
+            }
             for (int i = 0; i < Count; i++)
             {
                 array[arrayIndex + i] = Holder.Data[tmpOuter, tmpInner];
                 tmpInner++;
-                if (tmpInner == 64)
+                if (tmpInner == DefaultChunkCapacity)
                 {
                     tmpInner = 0;
                     tmpOuter++;
@@ -219,14 +220,19 @@ namespace DequeAPI
 
         public int IndexOf(T item)
         {
-            int tmpInner = BackInnerIndex;
+            int tmpInner = BackInnerIndex + 1;
             int tmpOuter = BackOuterIndex;
+            if (tmpInner == DefaultChunkCapacity)
+            {
+                tmpInner = 0;
+                tmpOuter++;
+            }
             for (int i = 0; i < Count; i++)
             {
                 if (item.Equals(Holder.Data[tmpOuter, tmpInner]))
                     return i;
                 tmpInner++;
-                if (tmpInner == 64)
+                if (tmpInner == DefaultChunkCapacity)
                 {
                     tmpInner = 0;
                     tmpOuter++;
@@ -241,7 +247,46 @@ namespace DequeAPI
             if (IsReadOnly)
                 throw new InvalidOperationException();
 
+            if (index < 0 || index >= Count)
+                throw new ArgumentOutOfRangeException();
+
+
+
             throw new NotImplementedException();
+        }
+
+        private void ShiftData(int EmptyIndex)
+        {
+            int tmpInner = EmptyIndex;
+            int tmpOuter = (EmptyIndex + BackDifference ) / DefaultChunkCapacity;
+            if (EmptyIndex < Count / 2)
+            {
+                for (int i = EmptyIndex; i >= 1; i--)
+                {
+                    this[i] = this[i - 1];
+                }
+                Count--;
+                BackInnerIndex++;
+                if (BackInnerIndex == DefaultChunkCapacity)
+                {
+                    BackInnerIndex = 0;
+                    BackOuterIndex++;
+                }
+            }
+            else
+            {
+                for (int i = EmptyIndex; i < Count; i++)
+                {
+                    this[i] = this[i + 1];
+                }
+                Count--;
+                FrontInnerIndex--;
+                if (FrontInnerIndex == -1)
+                {
+                    FrontInnerIndex = DefaultChunkCapacity - 1;
+                    FrontOuterIndex--;
+                }
+            }
         }
 
         public bool Remove(T item)
@@ -266,7 +311,7 @@ namespace DequeAPI
             if (IsReadOnly)
                 throw new InvalidOperationException();
 
-            throw new NotImplementedException();
+            ShiftData(index);
         }
 
         //TODO:
