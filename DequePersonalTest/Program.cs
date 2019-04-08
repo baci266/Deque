@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using DequeAPI;
 
 namespace DequePersonalTest
@@ -25,10 +26,18 @@ namespace DequePersonalTest
                 Console.Write($"{item} ");
             }
             Console.WriteLine();
+            for (int i = 0; i < deque.Count; i++)
+            {
+                Console.Write($"{deque[i]} ");
+            }
+            Console.WriteLine();
             Console.WriteLine(deque.IndexOf(24));
             Console.WriteLine(deque.Contains(70));
             Console.WriteLine(deque.Contains(90));
             deque.RemoveAt(10);
+            deque.Insert(10, 10);
+            deque.RemoveAt(75);
+            deque.Insert(75, 75);
             Console.ReadLine();
         }
     }
