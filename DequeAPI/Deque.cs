@@ -4,17 +4,13 @@ using System.Collections.Generic;
 
 namespace DequeAPI
 {
+
     public sealed class Deque<T> : IList<T>
     {
         private const int DefaultChunkCapacity = 64;
         private const int DefaultChunkCount = 2;
 
-        private int FrontOuterIndex;
-        private int FrontInnerIndex;
-        private int BackOuterIndex;
-        private int BackInnerIndex;
-        private int BackDifference;
-
+        private Index I;
         private DataHolder Holder;
 
         private struct DataHolder
@@ -27,19 +23,6 @@ namespace DequeAPI
             FieldInit();
         }
 
-        private void FieldInit()
-        {
-            Holder = new DataHolder
-            {
-                Data = new T[DefaultChunkCount, DefaultChunkCapacity]
-            };
-            BackDifference = DefaultChunkCapacity;
-            FrontInnerIndex = 0;
-            BackInnerIndex = DefaultChunkCapacity - 1;
-            FrontOuterIndex = 1;
-            BackOuterIndex = 0;
-        }
-
         public Deque(IEnumerable<T> items)
         {
             FieldInit();
@@ -49,16 +32,50 @@ namespace DequeAPI
             }
         }
 
+        private Deque(Deque<T> other)
+        {
+            Holder = other.Holder;
+            I = ReverseIndices(other);
+        }
+
+        private void FieldInit()
+        {
+            Holder = new DataHolder
+            {
+                Data = new T[DefaultChunkCount, DefaultChunkCapacity]
+            };
+            I = new Index
+            {
+                BackDifference = DefaultChunkCapacity,
+                FrontInnerIndex = 0,
+                BackInnerIndex = DefaultChunkCapacity - 1,
+                FrontOuterIndex = 1,
+                BackOuterIndex = 0
+            };
+        }
+
+        private Index ReverseIndices(Deque<T> other)
+        {
+            return new Index
+            {
+                FrontInnerIndex = other.I.BackInnerIndex,
+                FrontOuterIndex = other.I.BackOuterIndex,
+                BackInnerIndex = other.I.FrontInnerIndex,
+                BackOuterIndex = other.I.FrontOuterIndex,
+                BackDifference = DefaultChunkCapacity - other.I.FrontInnerIndex + (other.Holder.Data.GetLength(0) - other.I.FrontOuterIndex - 1) * DefaultChunkCapacity
+            };
+        }
+
         public void PushFront(T item)
         {
             Count++;
-            Holder.Data[FrontOuterIndex, FrontInnerIndex] = item;
-            FrontInnerIndex++;
-            if (FrontInnerIndex == DefaultChunkCapacity)
+            Holder.Data[I.FrontOuterIndex, I.FrontInnerIndex] = item;
+            I.FrontInnerIndex++;
+            if (I.FrontInnerIndex == DefaultChunkCapacity)
             {
-                FrontInnerIndex = 0;
-                FrontOuterIndex++;
-                if (FrontOuterIndex == Holder.Data.GetLength(0))
+                I.FrontInnerIndex = 0;
+                I.FrontOuterIndex++;
+                if (I.FrontOuterIndex == Holder.Data.GetLength(0))
                 {
                     Expand(true);
                 }
@@ -68,14 +85,14 @@ namespace DequeAPI
         public void PushBack(T item)
         {
             Count++;
-            BackDifference--;
-            Holder.Data[BackOuterIndex, BackInnerIndex] = item;
-            BackInnerIndex--;
-            if (BackInnerIndex < 0)
+            I.BackDifference--;
+            Holder.Data[I.BackOuterIndex, I.BackInnerIndex] = item;
+            I.BackInnerIndex--;
+            if (I.BackInnerIndex < 0)
             {
-                BackInnerIndex = DefaultChunkCapacity - 1;
-                BackOuterIndex--;
-                if (BackOuterIndex < 0)
+                I.BackInnerIndex = DefaultChunkCapacity - 1;
+                I.BackOuterIndex--;
+                if (I.BackOuterIndex < 0)
                 {
                     Expand(false);
                     //BackOuterIndex = (Queue.GetLength(0) / 4) - 1;
@@ -88,11 +105,11 @@ namespace DequeAPI
             if (Count == 0)
                 throw new InvalidOperationException();
             Count--;
-            FrontInnerIndex--;
-            if (FrontInnerIndex < 0)
+            I.FrontInnerIndex--;
+            if (I.FrontInnerIndex < 0)
             {
-                FrontInnerIndex = DefaultChunkCapacity - 1;
-                FrontOuterIndex--;
+                I.FrontInnerIndex = DefaultChunkCapacity - 1;
+                I.FrontOuterIndex--;
             }
         }
 
@@ -100,13 +117,13 @@ namespace DequeAPI
         {
             if (Count == 0)
                 throw new InvalidOperationException();
-            BackDifference++;
+            I.BackDifference++;
             Count--;
-            BackInnerIndex++;
-            if (BackInnerIndex == DefaultChunkCapacity)
+            I.BackInnerIndex++;
+            if (I.BackInnerIndex == DefaultChunkCapacity)
             {
-                BackInnerIndex = 0;
-                BackOuterIndex++;
+                I.BackInnerIndex = 0;
+                I.BackOuterIndex++;
             }
         }
 
@@ -114,21 +131,26 @@ namespace DequeAPI
         {
             int tmp = Count;
             var length = Holder.Data.GetLength(0);
-            BackOuterIndex = length / 2 + BackOuterIndex;
-            int frontOut =  (front) ? FrontOuterIndex : FrontOuterIndex + length/2;
-            int frontIn = FrontInnerIndex;
-            FrontOuterIndex = length / 2;
-            FrontInnerIndex = (BackInnerIndex + 1) % DefaultChunkCapacity;
+            I.BackOuterIndex = length / 2 + I.BackOuterIndex;
+            int frontOut =  (front) ? I.FrontOuterIndex : I.FrontOuterIndex + length/2;
+            int frontIn = I.FrontInnerIndex;
+            I.FrontOuterIndex = length / 2;
+            I.FrontInnerIndex = (I.BackInnerIndex + 1) % DefaultChunkCapacity;
             DataHolder newData = Holder;
             Holder.Data = new T[length*2,DefaultChunkCapacity];
             foreach (var item in newData.Data)
             {
                 PushFront(item);
-                if (FrontOuterIndex == length / 2 + frontOut && FrontOuterIndex == frontIn)
+                if (I.FrontOuterIndex == length / 2 + frontOut && I.FrontOuterIndex == frontIn)
                     break;
             }
-            BackDifference = (DefaultChunkCapacity * length / 2) + (BackInnerIndex + 1) % DefaultChunkCapacity + BackOuterIndex * DefaultChunkCapacity;
+            I.BackDifference = (DefaultChunkCapacity * length / 2) + (I.BackInnerIndex + 1) % DefaultChunkCapacity + I.BackOuterIndex * DefaultChunkCapacity;
             Count = tmp;
+        }
+
+        private void DisableReadOnly()
+        {
+            IsReadOnly = false;
         }
 
         #region IList
@@ -153,7 +175,7 @@ namespace DequeAPI
             if (index < 0 || index >= Count)
                 throw new IndexOutOfRangeException();
 
-            return index + BackDifference;
+            return index + I.BackDifference;
         }
 
         public int Count { get; private set; } = 0;
@@ -170,10 +192,10 @@ namespace DequeAPI
 
         public void Clear()
         {
-            FrontInnerIndex = 0;
-            BackInnerIndex = DefaultChunkCapacity - 1;
-            FrontOuterIndex = Holder.Data.GetLength(0);
-            BackOuterIndex = Holder.Data.GetLength(0) - 1;
+            I.FrontInnerIndex = 0;
+            I.BackInnerIndex = DefaultChunkCapacity - 1;
+            I.FrontOuterIndex = Holder.Data.GetLength(0);
+            I.BackOuterIndex = Holder.Data.GetLength(0) - 1;
         }
 
         public bool Contains(T item)
@@ -193,50 +215,24 @@ namespace DequeAPI
             if (array.Length - arrayIndex < Count)
                 throw new ArgumentException();
 
-            int tmpInner = BackInnerIndex + 1;
-            int tmpOuter = BackOuterIndex;
-            if ( tmpInner == DefaultChunkCapacity)
-            {
-                tmpInner = 0;
-                tmpOuter++;
-            }
             for (int i = 0; i < Count; i++)
             {
-                array[arrayIndex + i] = Holder.Data[tmpOuter, tmpInner];
-                tmpInner++;
-                if (tmpInner == DefaultChunkCapacity)
-                {
-                    tmpInner = 0;
-                    tmpOuter++;
-                }
+                array[arrayIndex + i] = this[i];
             }
         }
 
-        //TODO:
         public IEnumerator<T> GetEnumerator()
         {
-            throw new NotImplementedException();
+            IsReadOnly = true;
+            return new Dequemerate<T>(Holder.Data, DisableReadOnly, I);
         }
 
         public int IndexOf(T item)
         {
-            int tmpInner = BackInnerIndex + 1;
-            int tmpOuter = BackOuterIndex;
-            if (tmpInner == DefaultChunkCapacity)
-            {
-                tmpInner = 0;
-                tmpOuter++;
-            }
             for (int i = 0; i < Count; i++)
             {
-                if (item.Equals(Holder.Data[tmpOuter, tmpInner]))
+                if (item.Equals(this[i]))
                     return i;
-                tmpInner++;
-                if (tmpInner == DefaultChunkCapacity)
-                {
-                    tmpInner = 0;
-                    tmpOuter++;
-                }
             }
             return -1;
         }
@@ -278,12 +274,12 @@ namespace DequeAPI
                     this[i] = this[i - 1];
                 }
                 Count--;
-                BackInnerIndex++;
-                BackDifference++;
-                if (BackInnerIndex == DefaultChunkCapacity)
+                I.BackInnerIndex++;
+                I.BackDifference++;
+                if (I.BackInnerIndex == DefaultChunkCapacity)
                 {
-                    BackInnerIndex = 0;
-                    BackOuterIndex++;
+                    I.BackInnerIndex = 0;
+                    I.BackOuterIndex++;
                 }
             }
             else
@@ -293,11 +289,11 @@ namespace DequeAPI
                     this[i-1] = this[i];
                 }
                 Count--;
-                FrontInnerIndex--;
-                if (FrontInnerIndex == -1)
+                I.FrontInnerIndex--;
+                if (I.FrontInnerIndex == -1)
                 {
-                    FrontInnerIndex = DefaultChunkCapacity - 1;
-                    FrontOuterIndex--;
+                    I.FrontInnerIndex = DefaultChunkCapacity - 1;
+                    I.FrontOuterIndex--;
                 }
             }
         }
@@ -306,7 +302,7 @@ namespace DequeAPI
         {
             if (IsReadOnly)
                 throw new InvalidOperationException();
-
+            
             int index = IndexOf(item);
 
             if (index == -1)
@@ -326,11 +322,101 @@ namespace DequeAPI
             ShiftData(index);
         }
 
-        //TODO:
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            IsReadOnly = true;
+            return new Dequemerate<T>(Holder.Data, DisableReadOnly, I);
         }
+
+        internal Deque<T> GetReverseView()
+        {
+            if (IsReadOnly)
+                throw new InvalidOperationException();
+
+            return new Deque<T>(this);
+        }
+
         #endregion
+    }
+
+    internal struct Index
+    {
+        internal int FrontOuterIndex;
+        internal int FrontInnerIndex;
+        internal int BackOuterIndex;
+        internal int BackInnerIndex;
+        internal int BackDifference;
+
+        public Index(int frontOuterIndex, int frontInnerIndex, int backOuterIndex, int backInnerIndex, int backDifference)
+        {
+            FrontOuterIndex = frontOuterIndex;
+            FrontInnerIndex = frontInnerIndex;
+            BackOuterIndex = backOuterIndex;
+            BackInnerIndex = backInnerIndex;
+            BackDifference = backDifference;
+        }
+    }
+
+    public sealed class Dequemerate<T> : IEnumerator<T>
+    {
+        private const int DefaultChunkCapacity = 64;
+
+        private readonly T[,] Data;
+        private readonly Action DisableReadonly;
+        private readonly Index Indices;
+        private int InnerPosition;
+        private int OuterPosition;
+        
+        internal Dequemerate(T[,] data, Action disableReadonly, Index indices)
+        {
+            Data = data;
+            DisableReadonly = disableReadonly;
+            Indices = indices;
+            InnerPosition = Indices.BackInnerIndex;
+            OuterPosition = Indices.BackOuterIndex;
+        }
+
+        public T Current
+        {
+            get
+            {
+               return Data[OuterPosition, InnerPosition];
+            }
+        }
+        
+        object IEnumerator.Current => Current;
+
+        public void Dispose() {}
+
+        public bool MoveNext()
+        {
+            InnerPosition++;
+            if (InnerPosition == DefaultChunkCapacity)
+            {
+                InnerPosition = 0;
+                OuterPosition++;
+            }
+            if (InnerPosition == Indices.FrontInnerIndex && OuterPosition == Indices.FrontOuterIndex)
+            {
+                DisableReadonly();
+                return false;
+            }
+            return true;
+        }
+
+        public void Reset()
+        {
+            InnerPosition = Indices.BackInnerIndex;
+            OuterPosition = Indices.BackOuterIndex;
+        }
+    }
+
+    public static class DequeTest
+    {
+        public static IList<T> GetReverseView<T>(Deque<T> d)
+        {
+            var deque = d.GetReverseView();
+            return deque;
+        }
     }
 }
