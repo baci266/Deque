@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using DequeAPI;
 
 namespace DequePersonalTest
@@ -16,6 +15,13 @@ namespace DequePersonalTest
                 deque.PushFront(i);
             }
 
+            Console.WriteLine("Foreach:");
+            foreach (var item in deque)
+            {
+                Console.Write($"{item} ");
+            }
+            Console.WriteLine();
+
             Console.WriteLine("Indexer: ");
             Console.WriteLine(deque[54]);
             Console.WriteLine(deque[10]);
@@ -31,7 +37,7 @@ namespace DequePersonalTest
                 Console.Write($"{item} ");
             }
             Console.WriteLine();
-            
+
             Console.WriteLine("Contains:");
             Console.WriteLine(deque.Contains(70));
             Console.WriteLine(deque.Contains(90));
@@ -51,7 +57,13 @@ namespace DequePersonalTest
             Console.WriteLine(deque.IndexOf(42));
             Console.WriteLine();
 
-            Console.ReadLine();
+            Console.WriteLine("Reverse:");
+            var d = DequeTest.GetReverseView(deque);
+            foreach (var item in d)
+            {
+                Console.Write($"{item} ");
+            }
+            Console.WriteLine();
         }
     }
 }
