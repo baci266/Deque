@@ -1,5 +1,5 @@
 ﻿using System;
-using DequeAPI;
+using System.Collections.Generic;
 
 namespace DequePersonalTest
 {
@@ -64,6 +64,20 @@ namespace DequePersonalTest
                 Console.Write($"{item} ");
             }
             Console.WriteLine();
+
+            //Deque<int> d = new Deque<int>();
+            //d.Add(2);
+            //for (int i = 0; i < 75; i++)
+            //{
+            //    d.PushBack(i);
+            //}
+            //Console.WriteLine(d.Count);
+            //Console.WriteLine(d.IndexOf(250));
+            //Console.WriteLine(d.Remove(250));
+            //foreach (var item in d)
+            //{
+            //    Console.WriteLine(item);
+            //}
         }
     }
 }
