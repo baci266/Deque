@@ -34,8 +34,27 @@ namespace DequeAPI
 
         private Deque(Deque<T> other)
         {
-            Holder = other.Holder;
-            I = ReverseIndices(other);
+            int front_diff = DefaultChunkCapacity - other.I.FrontInnerIndex + (other.Holder.Data.GetLength(0) - other.I.FrontOuterIndex - 1) * DefaultChunkCapacity;
+            I = new Index
+            {
+                BackDifference = front_diff,
+                BackInnerIndex = other.I.FrontInnerIndex - 1,
+                BackOuterIndex = other.I.FrontOuterIndex,
+                FrontInnerIndex = other.I.FrontInnerIndex,
+                FrontOuterIndex = other.I.FrontOuterIndex
+            };
+            if (I.BackInnerIndex == -1)
+            {
+                I.BackInnerIndex = DefaultChunkCapacity - 1;
+                I.BackOuterIndex--;
+            }
+            Holder = new DataHolder();
+            Holder.Data = new T[other.Holder.Data.GetLength(0), DefaultChunkCapacity];
+            Count = other.Count;
+            foreach(var item in other)
+            {
+                PushBack(item);
+            }
         }
 
         private void FieldInit()
@@ -51,18 +70,6 @@ namespace DequeAPI
                 BackInnerIndex = DefaultChunkCapacity - 1,
                 FrontOuterIndex = 1,
                 BackOuterIndex = 0
-            };
-        }
-
-        private Index ReverseIndices(Deque<T> other)
-        {
-            return new Index
-            {
-                FrontInnerIndex = other.I.BackInnerIndex,
-                FrontOuterIndex = other.I.BackOuterIndex,
-                BackInnerIndex = other.I.FrontInnerIndex,
-                BackOuterIndex = other.I.FrontOuterIndex,
-                BackDifference = DefaultChunkCapacity - other.I.FrontInnerIndex + (other.Holder.Data.GetLength(0) - other.I.FrontOuterIndex - 1) * DefaultChunkCapacity
             };
         }
 
