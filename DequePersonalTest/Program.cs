@@ -123,23 +123,34 @@ namespace DequePersonalTest
 
             Console.WriteLine("Test4");
             {
-                Deque<A> d = new Deque<A>();
+                //Deque<A> d = new Deque<A>();
 
-                for (int i = 0; i < 80; i++)
-                {
-                    d.Add(new A(i));
-                }
+                //for (int i = 0; i < 80; i++)
+                //{
+                //    d.Add(new A(i));
+                //}
 
-                foreach (var item in d)
-                {
-                    Console.Write($"{item} ");
-                }
-                Console.WriteLine();
+                //foreach (var item in d)
+                //{
+                //    Console.Write($"{item} ");
+                //}
+                //Console.WriteLine();
             }
 
             Console.WriteLine("Test5");
             {
+                //Deque<int> d = new Deque<int>();
 
+                //for (int i = 0; i < 80; i++)
+                //{
+                //    d.Insert(0, i);
+                //    d.RemoveAt(0);
+                //}
+
+                //foreach (var item in d)
+                //{
+                //    Console.Write($"{item} ");
+                //}
             }
         }
     }
