@@ -388,12 +388,13 @@ public sealed class Deque<T> : IList<T>
 
 internal struct Index
 {
+    #region Fields
     internal int FrontOuterIndex;
     internal int FrontInnerIndex;
     internal int BackOuterIndex;
     internal int BackInnerIndex;
     internal int BackDifference;
-
+    #endregion
     public Index(int frontOuterIndex, int frontInnerIndex, int backOuterIndex, int backInnerIndex, int backDifference)
     {
         FrontOuterIndex = frontOuterIndex;
