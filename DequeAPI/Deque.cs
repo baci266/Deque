@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public sealed class Deque<T> : IList<T>
 {
+    #region SamepleLogic
     private const int DefaultChunkCapacity = 64;
     private const int DefaultChunkCount = 2;
 
@@ -134,7 +135,14 @@ public sealed class Deque<T> : IList<T>
     private void Expand(bool front)
     {
         int tmp = Count;
+        int tmpfin = 0;
+        int tmpfout = 0;
         var length = Holder.Data.GetLength(0);
+        if (!front)
+        {
+            tmpfin = I.FrontInnerIndex;
+            tmpfout = I.FrontOuterIndex + length / 2;
+        }
         I.BackOuterIndex = length / 2 + I.BackOuterIndex;
         int frontOut = (front) ? I.FrontOuterIndex : I.FrontOuterIndex + length / 2;
         int frontIn = I.FrontInnerIndex;
@@ -149,6 +157,11 @@ public sealed class Deque<T> : IList<T>
                 break;
         }
         I.BackDifference = (DefaultChunkCapacity * length / 2) + (I.BackInnerIndex + 1) % DefaultChunkCapacity + I.BackOuterIndex * DefaultChunkCapacity;
+        if (!front)
+        {
+            I.FrontOuterIndex = tmpfout;
+            I.FrontInnerIndex = tmpfin;
+        }
         Count = tmp;
     }
 
@@ -156,6 +169,8 @@ public sealed class Deque<T> : IList<T>
     {
         IsReadOnly = false;
     }
+
+#endregion
 
     #region IList
 
