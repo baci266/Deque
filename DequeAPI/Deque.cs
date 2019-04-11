@@ -150,13 +150,19 @@ public sealed class Deque<T> : IList<T>
         I.FrontInnerIndex = (I.BackInnerIndex + 1) % DefaultChunkCapacity;
         DataHolder newData = Holder;
         Holder.Data = new T[length * 2, DefaultChunkCapacity];
+        I.BackDifference = (I.BackInnerIndex + 1) % DefaultChunkCapacity;
+        if (I.BackDifference == 0)
+            I.BackDifference += (I.BackOuterIndex + 1) * DefaultChunkCapacity;
+        else
+            I.BackDifference += I.BackOuterIndex * DefaultChunkCapacity;
+        int tmp2 = I.BackDifference;
         foreach (var item in newData.Data)
         {
             PushFront(item);
             if (I.FrontOuterIndex == length / 2 + frontOut && I.FrontOuterIndex == frontIn)
                 break;
         }
-        I.BackDifference = (DefaultChunkCapacity * length / 2) + (I.BackInnerIndex + 1) % DefaultChunkCapacity + I.BackOuterIndex * DefaultChunkCapacity;
+        I.BackDifference = tmp2;
         if (!front)
         {
             I.FrontOuterIndex = tmpfout;
