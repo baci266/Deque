@@ -154,28 +154,62 @@ namespace DequePersonalTest
 
             Console.WriteLine("Test6");
             {
+                //Deque<int> d = new Deque<int>();
+                //for (int i = 0; i < 80; i++)
+                //{
+                //    d.Add(i);
+                //}
+                //foreach (var item in d)
+                //{
+                //    Console.Write($"{item} ");
+                //}
+                //Console.WriteLine();
+                //Console.WriteLine($"Count: {d.Count}");
+                //Console.WriteLine($"Index of 40: {d.IndexOf(40)}");
+
+                //var d2 = DequeTest.GetReverseView(d);
+                //foreach (var item in d2)
+                //{
+                //    Console.Write($"{item} ");
+                //}
+                //Console.WriteLine();
+                //Console.WriteLine($"Count: {d2.Count}");
+                //Console.WriteLine($"Index of 40: {d2.IndexOf(40)}");
+                //for (int i = 0; i < d2.Count; i++)
+                //{
+                //    Console.WriteLine($"{i}-th item is: {d2[i]}");
+                //}
+                //Console.WriteLine();
+            }
+
+            Console.WriteLine("Test7");
+            {
                 Deque<int> d = new Deque<int>();
-                for (int i = 0; i < 80; i++)
+                for (int i = 0; i < 2000; i++)
                 {
                     d.Add(i);
                 }
-                foreach (var item in d)
+
+                for (int i = 0; i < d.Count; i++)
                 {
-                    Console.Write($"{item} ");
+                    if (i%100 == 0)
+                        Console.WriteLine($"{i}-th item is: {d[i]}");
                 }
-                Console.WriteLine();
-                Console.WriteLine($"Count: {d.Count}");
-                Console.WriteLine($"Index of 40: {d.IndexOf(40)}");
 
                 var d2 = DequeTest.GetReverseView(d);
-                foreach (var item in d2)
+
+                for (int i = 0; i < 4000; i++)
                 {
-                    Console.Write($"{item} ");
+                    d2.Add(i);
                 }
-                Console.WriteLine();
-                Console.WriteLine($"Count: {d2.Count}");
-                Console.WriteLine($"Index of 40: {d2.IndexOf(40)}");
+
+                for (int i = 0; i < d2.Count; i++)
+                {
+                    if (i % 100 == 0)
+                        Console.WriteLine($"{i}-th item is: {d2[i]}");
+                }
             }
+
         }
     }
     
