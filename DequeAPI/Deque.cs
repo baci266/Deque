@@ -32,10 +32,9 @@ public sealed class Deque<T> : IList<T>
 
     private Deque(Deque<T> other)
     {
-        int front_diff = DefaultChunkCapacity - other.I.FrontInnerIndex + (other.Holder.Data.GetLength(0) - other.I.FrontOuterIndex - 1) * DefaultChunkCapacity;
         I = new Index
         {
-            BackDifference = front_diff,
+            BackDifference = 0,
             BackInnerIndex = other.I.FrontInnerIndex - 1,
             BackOuterIndex = other.I.FrontOuterIndex,
             FrontInnerIndex = other.I.FrontInnerIndex,
@@ -48,11 +47,12 @@ public sealed class Deque<T> : IList<T>
         }
         Holder = new DataHolder();
         Holder.Data = new T[other.Holder.Data.GetLength(0), DefaultChunkCapacity];
-        Count = other.Count;
         foreach (var item in other)
         {
             PushBack(item);
         }
+        Count = other.Count;
+        I.BackDifference = other.I.BackDifference;
     }
 
     private void FieldInit()
@@ -395,6 +395,7 @@ internal struct Index
     internal int BackInnerIndex;
     internal int BackDifference;
     #endregion
+
     public Index(int frontOuterIndex, int frontInnerIndex, int backOuterIndex, int backInnerIndex, int backDifference)
     {
         FrontOuterIndex = frontOuterIndex;
