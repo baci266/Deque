@@ -100,7 +100,6 @@ public sealed class Deque<T> : IList<T>
             if (I.BackOuterIndex < 0)
             {
                 Expand(false);
-                //BackOuterIndex = (Queue.GetLength(0) / 4) - 1;
             }
         }
     }
@@ -220,8 +219,9 @@ public sealed class Deque<T> : IList<T>
     {
         I.FrontInnerIndex = 0;
         I.BackInnerIndex = DefaultChunkCapacity - 1;
-        I.FrontOuterIndex = Holder.Data.GetLength(0);
-        I.BackOuterIndex = Holder.Data.GetLength(0) - 1;
+        I.FrontOuterIndex = Holder.Data.GetLength(0) / 2;
+        I.BackOuterIndex = I.FrontOuterIndex - 1;
+        Count = 0;
     }
 
     public bool Contains(T item)
@@ -255,10 +255,21 @@ public sealed class Deque<T> : IList<T>
 
     public int IndexOf(T item)
     {
-        for (int i = 0; i < Count; i++)
+        if (item == null)
         {
-            if (item.Equals(this[i]))
-                return i;
+            for (int i = 0; i < Count; i++)
+            {
+                if (this[i] == null)
+                    return i;
+            }
+        }
+        else
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                if (item.Equals(this[i]))
+                    return i;
+            }
         }
         return -1;
     }
@@ -350,7 +361,7 @@ public sealed class Deque<T> : IList<T>
             RemoveAt(index);
             return true;
         }
-    }
+    }   
 
     public void RemoveAt(int index)
     {
@@ -448,7 +459,10 @@ public sealed class Dequemerate<T> : IEnumerator<T>
 
     object IEnumerator.Current => Current;
 
-    public void Dispose() { }
+    public void Dispose() 
+    {
+        DisableReadonly();
+    }
 
     public bool MoveNext()
     {
@@ -460,7 +474,6 @@ public sealed class Dequemerate<T> : IEnumerator<T>
         }
         if (InnerPosition == Indices.FrontInnerIndex && OuterPosition == Indices.FrontOuterIndex)
         {
-            DisableReadonly();
             return false;
         }
         return true;
