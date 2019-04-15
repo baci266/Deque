@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 
 namespace DequePersonalTest
 {
@@ -373,7 +372,7 @@ namespace DequePersonalTest
                 //l.Clear();
                 //if (d.Count != l.Count)
                 //    Console.WriteLine("Clear issue");
-                //for (int i = 0; i < 1000000; i++)
+                //for (int i = 0; i < 100000; i++)
                 //{
                 //    d.Add(i);
                 //    l.Add(i);
@@ -408,6 +407,7 @@ namespace DequePersonalTest
                 //        Console.WriteLine("Contains mismatch in " + x);
                 //}
                 //try
+
                 //{
                 //    foreach (var item in d)
                 //    {
@@ -417,13 +417,13 @@ namespace DequePersonalTest
                 //}
                 //catch { }
 
-                //for (int i = 0; i < 80000; i++)
+                //for (int i = 0; i < 40000; i++)
                 //{
                 //    if (d.Remove(i) != l.Remove(i))
                 //        Console.WriteLine("Remove mismatch at " + i);
                 //}
 
-                //for (int i = 0; i < 80000; i++)
+                //for (int i = 0; i < 40000; i++)
                 //{
                 //    d.RemoveAt(0);
                 //    l.RemoveAt(0);
@@ -437,7 +437,7 @@ namespace DequePersonalTest
                 //}
                 //if (d.Count != l.Count)
                 //    Console.WriteLine("Wrong counts ending");
-            }
+            }   
         }
     }
     
