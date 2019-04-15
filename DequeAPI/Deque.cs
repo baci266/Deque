@@ -442,18 +442,13 @@ public sealed class Dequemerate<T> : IEnumerator<T>
         OuterPosition = Indices.BackOuterIndex;
     }
 
+    #region IEnumerator
+
     public T Current
     {
         get
         {
-            try
-            {
-                return Data[OuterPosition, InnerPosition];
-            }
-            catch (IndexOutOfRangeException)
-            {
-                throw new InvalidOperationException();
-            }
+            return Data[OuterPosition, InnerPosition];
         }
     }
 
@@ -484,6 +479,8 @@ public sealed class Dequemerate<T> : IEnumerator<T>
         InnerPosition = Indices.BackInnerIndex;
         OuterPosition = Indices.BackOuterIndex;
     }
+
+    #endregion
 }
 
 public static class DequeTest
